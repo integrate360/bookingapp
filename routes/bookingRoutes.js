@@ -9,7 +9,7 @@ router.post('/bookings', async (req, res) => {
     const booking = new Booking(req.body);
     await booking.save();
 
-    // Notify staff via WebSocket
+    // Emit a new booking event to all connected clients
     const io = req.app.get('socketio');
     io.emit('newBooking', booking);
 
@@ -39,18 +39,23 @@ router.put('/bookings/:id/accept', async (req, res) => {
     await booking.save();
 
     res.status(200).json({ message: 'Booking accepted successfully', booking });
+
+    // Emit booking status change after acceptance
+    const io = req.app.get('socketio');
+    io.emit('bookingAccepted', booking);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 // Get all bookings
 router.get('/bookings', async (req, res) => {
-    try {
-      const bookings = await Booking.find(); // Retrieve all bookings from the database
-      res.status(200).json({ bookings }); // Respond with all the bookings
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
-  
+  try {
+    const bookings = await Booking.find(); 
+    res.status(200).json({ bookings });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

@@ -9,7 +9,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: '*',  // Change to a specific domain if needed
   },
 });
 
@@ -32,9 +32,11 @@ app.use(cors());
 app.use(express.json());
 app.use('/api', bookingRoutes);
 
+// Handle WebSocket connection
 io.on('connection', (socket) => {
   console.log('A staff member connected with socket ID:', socket.id);
-
+  
+  // Emit a connection message when a user connects
   socket.emit('connected', { message: 'You are connected to the server!' });
 
   socket.on('disconnect', () => {
@@ -44,6 +46,6 @@ io.on('connection', (socket) => {
 
 app.set('socketio', io);
 
-server.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+server.listen(4000, () => {
+  console.log('Server running on http://localhost:4000');
 });
